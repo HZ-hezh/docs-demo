@@ -10,7 +10,10 @@ export default defineConfigWithTheme({
   
   // 忽略死链接，特别是 localhost 链接
   ignoreDeadLinks: [
-    /^http:\/\/localhost/ ,
+    // 忽略所有 localhost 链接
+    /^https?:\/\/localhost/,
+    // 也可以忽略特定的链接
+    'http://localhost:15672'
   ],
   
   themeConfig: {

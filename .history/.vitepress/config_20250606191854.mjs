@@ -7,12 +7,6 @@ export default defineConfigWithTheme({
   head:[["link",{rel:"icon",href:"/earth.png"}]], //菜单图标
   title: "资源推荐",
   description: "A VitePress Site",
-  
-  // 忽略死链接，特别是 localhost 链接
-  ignoreDeadLinks: [
-    /^http:\/\/localhost/ ,
-  ],
-  
   themeConfig: {
     outlineTitle:"目录",
     outline:[2,4],
