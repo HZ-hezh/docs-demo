@@ -4,60 +4,63 @@ on:
   push:
     branches: [main]
 
+# 显式设置令牌权限
 permissions:
-  contents: read
+  contents: write  # 需要 write 权限上传 artifact
   pages: write
   id-token: write
 
+# 避免并发问题
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}  # 显式传递 token
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 10.8.1
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
       - name: Configure GitHub Pages
-        id: pages
         uses: actions/configure-pages@v4
+        id: pages-config
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build with VitePress
-        run: | 
+      - name: Build VitePress site
+        run: |
           pnpm run docs:build
-          touch .nojekyll
-          
+          touch .vitepress/dist/.nojekyll  # 确保放置在正确位置
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .vitepress/dist
+          retention-days: 1  # 设置较短的保留时间
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
-    name: Deploy
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v3
+        # 添加额外权限
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
