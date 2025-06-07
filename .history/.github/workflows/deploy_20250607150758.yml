@@ -43,10 +43,7 @@ jobs:
         run: | 
           pnpm run docs:build
           touch .nojekyll
-      
-      - name: List dist content
-        run: ls -al .vitepress/dist
-
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
