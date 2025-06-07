@@ -57,6 +57,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}  # 从部署的输出中获取URL
     needs: build  # 在build完成后执行
     runs-on: ubuntu-latest
+    name: Deploy
     steps:
       - name: Deploy to GitHub Pages
         id: deployment  # 指定id
