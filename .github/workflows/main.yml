@@ -2,7 +2,7 @@ name: Deploy VitePress site to Pages
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 env:
   PNPM_VERSION: 8.19.0
