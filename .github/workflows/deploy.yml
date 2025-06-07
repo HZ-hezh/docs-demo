@@ -4,30 +4,33 @@ on:
   push:
     branches: [main]
 
-# 显式设置令牌权限
+# 增强权限配置
 permissions:
-  contents: write  # 需要 write 权限上传 artifact
+  contents: write   # 必须为 write 才能上传工件
   pages: write
   id-token: write
 
-# 避免并发问题
+# 解决并发问题
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true  # 改为 true 以解决潜在的并发冲突
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      run_id: ${{ steps.get_run_id.outputs.run_id }}  # 显式传递 run_id
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}  # 显式传递 token
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Run ID
+        id: get_run_id
+        run: echo "run_id=$GITHUB_RUN_ID" >> $GITHUB_OUTPUT  # 显式捕获 run_id
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -42,7 +45,8 @@ jobs:
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
-        id: pages-config
+        with:
+          static_site_generator: vitepress  # 显式指定静态站点生成器
 
       - name: Install dependencies
         run: pnpm install
@@ -50,17 +54,32 @@ jobs:
       - name: Build VitePress site
         run: |
           pnpm run docs:build
-          touch .vitepress/dist/.nojekyll  # 确保放置在正确位置
+          touch .vitepress/dist/.nojekyll
 
-      - name: Upload artifact
+      - name: Upload artifact with Run ID
         uses: actions/upload-pages-artifact@v3
         with:
+          name: vitepress-site-${{ steps.get_run_id.outputs.run_id }}  # 唯一工件名称
           path: .vitepress/dist
-          retention-days: 1  # 设置较短的保留时间
+          retention-days: 1
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Download artifact using Run ID
+        uses: actions/download-artifact@v4
+        with:
+          name: vitepress-site-${{ needs.build.outputs.run_id }}  # 使用相同的 run_id 下载
+          path: .vitepress/dist
+        
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v3
-        # 添加额外权限
         with:
+          artifact_name: vitepress-site-${{ needs.build.outputs.run_id }}  # 再次指定相同的名称
           token: ${{ secrets.GITHUB_TOKEN }}
