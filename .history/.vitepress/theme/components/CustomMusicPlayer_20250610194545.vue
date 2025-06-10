@@ -330,30 +330,14 @@ const nextSong = () => {
     // 设置新的音源
     audioRef.value.src = nextSongInfo.src
     
-    // 设置加载超时
-    const loadTimeout = setTimeout(() => {
-      console.error('音频加载超时:', nextSongInfo.name)
-      errorCount.value++
-      if (errorCount.value < maxErrors) {
-        console.log('尝试跳过超时的歌曲')
-        const skipIndex = (currentIndex.value + 1) % playlist.value.length
-        if (skipIndex !== currentIndex.value) {
-          currentIndex.value = skipIndex
-          nextSong()
-        }
-      }
-    }, 10000) // 10秒超时
-    
     // 监听音频加载完成事件
     const handleCanPlay = () => {
-      clearTimeout(loadTimeout) // 清除超时计时器
       audioRef.value.removeEventListener('canplay', handleCanPlay)
       // 音频加载完成后自动播放
       const playPromise = audioRef.value.play()
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          errorCount.value = 0 // 成功播放时重置错误计数
           console.log('下一首自动播放成功:', nextSongInfo.name)
         }).catch(error => {
           console.error('下一首自动播放失败:', error)
@@ -403,7 +387,6 @@ const previousSong = () => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          errorCount.value = 0 // 成功播放时重置错误计数
           console.log('上一首自动播放成功:', prevSong.name)
         }).catch(error => {
           console.error('上一首自动播放失败:', error)

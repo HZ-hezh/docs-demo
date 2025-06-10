@@ -288,7 +288,6 @@ const playSong = (index) => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          errorCount.value = 0 // 成功播放时重置错误计数
           console.log('播放列表歌曲自动播放成功:', songToPlay.name)
         }).catch(error => {
           console.error('播放列表歌曲自动播放失败:', error)
@@ -330,30 +329,14 @@ const nextSong = () => {
     // 设置新的音源
     audioRef.value.src = nextSongInfo.src
     
-    // 设置加载超时
-    const loadTimeout = setTimeout(() => {
-      console.error('音频加载超时:', nextSongInfo.name)
-      errorCount.value++
-      if (errorCount.value < maxErrors) {
-        console.log('尝试跳过超时的歌曲')
-        const skipIndex = (currentIndex.value + 1) % playlist.value.length
-        if (skipIndex !== currentIndex.value) {
-          currentIndex.value = skipIndex
-          nextSong()
-        }
-      }
-    }, 10000) // 10秒超时
-    
     // 监听音频加载完成事件
     const handleCanPlay = () => {
-      clearTimeout(loadTimeout) // 清除超时计时器
       audioRef.value.removeEventListener('canplay', handleCanPlay)
       // 音频加载完成后自动播放
       const playPromise = audioRef.value.play()
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          errorCount.value = 0 // 成功播放时重置错误计数
           console.log('下一首自动播放成功:', nextSongInfo.name)
         }).catch(error => {
           console.error('下一首自动播放失败:', error)
@@ -403,7 +386,6 @@ const previousSong = () => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          errorCount.value = 0 // 成功播放时重置错误计数
           console.log('上一首自动播放成功:', prevSong.name)
         }).catch(error => {
           console.error('上一首自动播放失败:', error)
@@ -458,25 +440,13 @@ const formatTime = (seconds) => {
 
 const handleError = (e) => {
   console.error('音频播放错误:', e)
-  console.error('当前歌曲:', currentSong.value ? currentSong.value.name : '未知')
-  console.error('当前索引:', currentIndex.value)
-  
   errorCount.value++
-  console.warn('错误计数:', errorCount.value, '/', maxErrors)
-  
-  if (errorCount.value >= maxErrors) {
-    console.error('连续错误次数超过最大值，停止自动切换')
-    isPlaying.value = false
-    errorCount.value = 0 // 重置错误计数
-    alert('音频播放出现多次错误，请检查网络连接或音频文件')
-    return
-  }
-  
-  // 尝试切换到下一首
-  console.log('尝试自动切换到下一首歌曲')
-  setTimeout(() => {
+  if (errorCount.value > maxErrors) {
+    console.error('连续错误次数超过最大值，强制停止播放')
     nextSong()
-  }, 1000) // 延迟1秒再尝试，避免快速连续错误
+  } else {
+    nextSong()
+  }
 }
 
 // 进度条拖动功能
