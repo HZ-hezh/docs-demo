@@ -214,25 +214,6 @@ const duration = ref(0)
 const volume = ref(100)
 const isMuted = ref(false)
 
-// 处理音频源地址，在生产环境中将 /api/music 替换为实际的服务器地址
-const processAudioSrc = (src) => {
-  // 如果路径以 /api/music 开头且不在开发环境中
-  if (src.startsWith('/api/music') && typeof window !== 'undefined') {
-    const isDev = window.location.hostname === 'localhost' || 
-                  window.location.hostname === '127.0.0.1' ||
-                  window.location.port === '5173'
-    
-    if (!isDev) {
-      // 生产环境：直接使用远程服务器地址
-      console.log('Production mode: converting API path to direct URL:', src)
-      return src.replace('/api/music', 'http://47.113.102.160:9000/docs-demo/music')
-    }
-  }
-  
-  // 开发环境或其他路径：保持原样
-  return src
-}
-
 // 计算属性
 const playlist = computed(() => {
   if (config.src) {
@@ -251,6 +232,20 @@ const progress = computed(() => duration.value ? (currentTime.value / duration.v
 // 圆形进度条计算
 const circumference = computed(() => 2 * Math.PI * 20) // 半径20的圆周长
 const progressOffset = computed(() => circumference.value - (progress.value / 100) * circumference.value)
+
+// 处理音频源地址，在生产环境中将 /api/music 替换为实际的服务器地址
+const processAudioSrc = (src) => {
+  // 检查是否为生产环境（通过域名判断）
+  const isProduction = typeof window !== 'undefined' && 
+    (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
+  
+  // 如果是生产环境且路径以 /api/music 开头，则替换为实际服务器地址
+  if (isProduction && src.startsWith('/api/music')) {
+    return src.replace('/api/music', 'http://47.113.102.160:9000/docs-demo/music')
+  }
+  
+  return src
+}
 
 // 方法
 const togglePlay = () => {
@@ -278,14 +273,27 @@ const playSong = (index) => {
     return
   }
   
+  // 获取要播放的歌曲信息
+  const songToPlay = playlist.value[index]
+  console.log('要播放的歌曲信息:', songToPlay ? songToPlay.name : '未找到')
+  
+  if (!songToPlay) {
+    console.error('无法找到要播放的歌曲，索引:', index)
+    return
+  }
+  
+  // 更新索引
   currentIndex.value = index
-  if (audioRef.value && currentSong.value) {
+  
+  if (audioRef.value) {
+    console.log('播放歌曲:', songToPlay.name)
+    
     // 先暂停当前播放
     audioRef.value.pause()
     isPlaying.value = false
     
     // 设置新的音源
-    audioRef.value.src = currentSong.value.src
+    audioRef.value.src = songToPlay.src
     
     // 监听音频加载完成事件
     const handleCanPlay = () => {
@@ -295,7 +303,7 @@ const playSong = (index) => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          console.log('播放列表歌曲自动播放成功')
+          console.log('播放列表歌曲自动播放成功:', songToPlay.name)
         }).catch(error => {
           console.error('播放列表歌曲自动播放失败:', error)
           isPlaying.value = false
@@ -314,17 +322,27 @@ const nextSong = () => {
   const nextIndex = (currentIndex.value + 1) % playlist.value.length
   console.log('计算的下一首索引:', nextIndex)
   
+  // 获取下一首歌曲信息
+  const nextSongInfo = playlist.value[nextIndex]
+  console.log('下一首歌曲信息:', nextSongInfo ? nextSongInfo.name : '未找到')
+  
+  if (!nextSongInfo) {
+    console.error('无法找到下一首歌曲')
+    return
+  }
+  
+  // 更新索引
   currentIndex.value = nextIndex
   
-  if (audioRef.value && currentSong.value) {
-    console.log('切换到下一首:', currentSong.value.name)
+  if (audioRef.value) {
+    console.log('切换到下一首:', nextSongInfo.name)
     
     // 先暂停当前播放
     audioRef.value.pause()
     isPlaying.value = false
     
     // 设置新的音源
-    audioRef.value.src = currentSong.value.src
+    audioRef.value.src = nextSongInfo.src
     
     // 监听音频加载完成事件
     const handleCanPlay = () => {
@@ -334,7 +352,7 @@ const nextSong = () => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          console.log('下一首自动播放成功:', currentSong.value.name)
+          console.log('下一首自动播放成功:', nextSongInfo.name)
         }).catch(error => {
           console.error('下一首自动播放失败:', error)
           isPlaying.value = false
@@ -353,17 +371,27 @@ const previousSong = () => {
   const prevIndex = currentIndex.value === 0 ? playlist.value.length - 1 : currentIndex.value - 1
   console.log('计算的上一首索引:', prevIndex)
   
+  // 获取上一首歌曲信息
+  const prevSong = playlist.value[prevIndex]
+  console.log('上一首歌曲信息:', prevSong ? prevSong.name : '未找到')
+  
+  if (!prevSong) {
+    console.error('无法找到上一首歌曲')
+    return
+  }
+  
+  // 更新索引
   currentIndex.value = prevIndex
   
-  if (audioRef.value && currentSong.value) {
-    console.log('切换到上一首:', currentSong.value.name)
+  if (audioRef.value) {
+    console.log('切换到上一首:', prevSong.name)
     
     // 先暂停当前播放
     audioRef.value.pause()
     isPlaying.value = false
     
     // 设置新的音源
-    audioRef.value.src = currentSong.value.src
+    audioRef.value.src = prevSong.src
     
     // 监听音频加载完成事件
     const handleCanPlay = () => {
@@ -373,7 +401,7 @@ const previousSong = () => {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           isPlaying.value = true
-          console.log('上一首自动播放成功:', currentSong.value.name)
+          console.log('上一首自动播放成功:', prevSong.name)
         }).catch(error => {
           console.error('上一首自动播放失败:', error)
           isPlaying.value = false

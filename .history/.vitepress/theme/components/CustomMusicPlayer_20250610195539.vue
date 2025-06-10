@@ -214,34 +214,12 @@ const duration = ref(0)
 const volume = ref(100)
 const isMuted = ref(false)
 
-// 处理音频源地址，在生产环境中将 /api/music 替换为实际的服务器地址
-const processAudioSrc = (src) => {
-  // 如果路径以 /api/music 开头且不在开发环境中
-  if (src.startsWith('/api/music') && typeof window !== 'undefined') {
-    const isDev = window.location.hostname === 'localhost' || 
-                  window.location.hostname === '127.0.0.1' ||
-                  window.location.port === '5173'
-    
-    if (!isDev) {
-      // 生产环境：直接使用远程服务器地址
-      console.log('Production mode: converting API path to direct URL:', src)
-      return src.replace('/api/music', 'http://47.113.102.160:9000/docs-demo/music')
-    }
-  }
-  
-  // 开发环境或其他路径：保持原样
-  return src
-}
-
 // 计算属性
 const playlist = computed(() => {
   if (config.src) {
-    return [{ name: '音频播放', src: processAudioSrc(config.src) }]
+    return [{ name: '音频播放', src: config.src }]
   }
-  return config.list?.map(song => ({
-    ...song,
-    src: processAudioSrc(song.src)
-  })) || []
+  return config.list || []
 })
 
 const currentSong = computed(() => playlist.value[currentIndex.value])
@@ -538,6 +516,25 @@ watch(currentSong, (newSong) => {
     audioRef.value.src = newSong.src
   }
 })
+
+// 处理音频源地址，在生产环境中将 /api/music 替换为实际的服务器地址
+const processAudioSrc = (src) => {
+  // 如果路径以 /api/music 开头且不在开发环境中
+  if (src.startsWith('/api/music') && typeof window !== 'undefined') {
+    const isDev = window.location.hostname === 'localhost' || 
+                  window.location.hostname === '127.0.0.1' ||
+                  window.location.port === '5173'
+    
+    if (!isDev) {
+      // 生产环境：直接使用远程服务器地址
+      console.log('Production mode: converting API path to direct URL:', src)
+      return src.replace('/api/music', 'http://47.113.102.160:9000/docs-demo/music')
+    }
+  }
+  
+  // 开发环境或其他路径：保持原样
+  return src
+}
 </script>
 
 <style scoped>
