@@ -14,6 +14,30 @@ export default defineConfigWithTheme({
     /^http:\/\/localhost/ ,
   ],
   
+  // 开发服务器配置
+  vite: {
+    server: {
+      proxy: {
+        '/api/music': {
+          target: 'http://47.113.102.160:9000',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/music/, '/docs-demo/music'),
+          configure: (proxy, _options) => {
+            proxy.on('error', (err, _req, _res) => {
+              console.log('proxy error', err);
+            });
+            proxy.on('proxyReq', (proxyReq, req, _res) => {
+              console.log('Sending Request to the Target:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, _res) => {
+              console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            });
+          },
+        }
+      }
+    }
+  },
+  
   themeConfig: {
     outlineTitle:"目录",
     outline:[2,4],
@@ -57,12 +81,12 @@ export default defineConfigWithTheme({
         }
       }
     },
-    // 4. 可选配置：启用背景音乐小组件 - 使用播放列表支持随机播放
-    musicBall: {
+    // 自定义音乐播放器配置
+    customMusicPlayer: {
       list: [
         {
           name: "Butter-Fly",
-          src: "http://47.113.102.160:9000/docs-demo/music/和田光司-Butter-Fly-《数码宝贝》TV动画片头曲.flac"
+          src: "/api/music/和田光司-Butter-Fly-《数码宝贝》TV动画片头曲.flac"
         },
         {
           name: "把回忆拼好给你",
@@ -70,43 +94,43 @@ export default defineConfigWithTheme({
         },
         {
           name: "个人简历",
-          src: "http://47.113.102.160:9000/docs-demo/music/风吹流年-个人简介(说唱).flac"
+          src: "/api/风吹流年-个人简介(说唱).flac"
         },
         {
           name: "不说",
-          src: "http://47.113.102.160:9000/docs-demo/music/%E5%91%A8%E5%85%AC-%E4%B8%8D%E8%AF%B4.flac"
+          src: "/api/music/%E5%91%A8%E5%85%AC-%E4%B8%8D%E8%AF%B4.flac"
         },
         {
           name: "春桥与志明",
-          src: "http://47.113.102.160:9000/docs-demo/music/街道办GDC_欧阳耀莹-春娇与志明.flac"
+          src: "/api/music/街道办GDC_欧阳耀莹-春娇与志明.flac"
         },
         {
           name: "崂山道士",
-          src: "http://47.113.102.160:9000/docs-demo/music/失恋无罪-崂山道士 (要学神仙驾鹤飞天1.1x).flac"
+          src: "/api/music/失恋无罪-崂山道士 (要学神仙驾鹤飞天1.1x).flac"
         },
         {
           name: "天若有情",
-          src: "http://47.113.102.160:9000/docs-demo/music/桃-天若有情 (赖仔版).mp3"
+          src: "/api/music/桃-天若有情 (赖仔版).mp3"
         },
         {
           name: "梦回还",
-          src: "http://47.113.102.160:9000/docs-demo/music/呦猫UNEKO-梦回还.flac"
+          src: "/api/music/呦猫UNEKO-梦回还.flac"
         },
         {
           name: "朵",
-          src: "http://47.113.102.160:9000/docs-demo/music/赵雷-朵.flac"
+          src: "/api/music/赵雷-朵.flac"
         },
         {
           name: "红尘客栈",
-          src: "http://47.113.102.160:9000/docs-demo/music/周杰伦-红尘客栈.flac"
+          src: "/api/music/周杰伦-红尘客栈.flac"
         },
         {
           name: "兰亭序",
-          src: "http://47.113.102.160:9000/docs-demo/music/周杰伦-兰亭序.flac"
+          src: "/api/music/周杰伦-兰亭序.flac"
         },
         {
           name: "青花瓷",
-          src: "http://47.113.102.160:9000/docs-demo/music/周杰伦-青花瓷.flac"
+          src: "/api/music/周杰伦-青花瓷.flac"
         }
       ],
       loop: true,
