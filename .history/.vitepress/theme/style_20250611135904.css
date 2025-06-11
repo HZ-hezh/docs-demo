@@ -1,0 +1,396 @@
+/**
+ * VitePress Theme Optimization
+ * Optimized for performance, accessibility, and maintainability
+ * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
+ */
+
+/* ==========================================================================
+   CSS Custom Properties (Variables)
+   ========================================================================== */
+
+:root {
+  /* Color System - Optimized for consistency and accessibility */
+  --vp-c-default-1: var(--vp-c-gray-1);
+  --vp-c-default-2: var(--vp-c-gray-2);
+  --vp-c-default-3: var(--vp-c-gray-3);
+  --vp-c-default-soft: var(--vp-c-gray-soft);
+
+  /* Brand Colors - Enhanced contrast for better accessibility */
+  --vp-c-brand-1: var(--vp-c-indigo-1);
+  --vp-c-brand-2: var(--vp-c-indigo-2);
+  --vp-c-brand-3: var(--vp-c-indigo-3);
+  --vp-c-brand-soft: var(--vp-c-indigo-soft);
+
+  /* Semantic Colors - Consistent mapping */
+  --vp-c-tip-1: var(--vp-c-brand-1);
+  --vp-c-tip-2: var(--vp-c-brand-2);
+  --vp-c-tip-3: var(--vp-c-brand-3);
+  --vp-c-tip-soft: var(--vp-c-brand-soft);
+
+  --vp-c-warning-1: var(--vp-c-yellow-1);
+  --vp-c-warning-2: var(--vp-c-yellow-2);
+  --vp-c-warning-3: var(--vp-c-yellow-3);
+  --vp-c-warning-soft: var(--vp-c-yellow-soft);
+
+  --vp-c-danger-1: var(--vp-c-red-1);
+  --vp-c-danger-2: var(--vp-c-red-2);
+  --vp-c-danger-3: var(--vp-c-red-3);
+  --vp-c-danger-soft: var(--vp-c-red-soft);
+
+  /* Performance Optimization - Consolidated button variables */
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: var(--vp-c-white);
+  --vp-button-brand-bg: var(--vp-c-brand-3);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: var(--vp-c-white);
+  --vp-button-brand-hover-bg: var(--vp-c-brand-2);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: var(--vp-c-white);
+  --vp-button-brand-active-bg: var(--vp-c-brand-1);
+
+  /* Hero Section - Optimized gradients */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+  --vp-home-hero-image-background: linear-gradient(-45deg, #bd34fe 50%, #47caff 50%);
+  --vp-home-hero-image-filter: blur(44px);
+
+  /* Custom Blocks - Accessibility enhanced */
+  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-text: var(--vp-c-text-1);
+  --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
+  --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
+}
+
+/* ==========================================================================
+   Responsive Design - Mobile First Approach
+   ========================================================================== */
+
+/* Base styles for mobile devices */
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
+/* High DPI displays optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  :root {
+    /* Optimize for retina displays */
+    --vp-home-hero-image-filter: blur(40px);
+  }
+}
+
+/* ==========================================================================
+   Performance Optimizations
+   ========================================================================== */
+
+/* Reduce paint complexity for better performance */
+.vp-doc img,
+.vp-doc video {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Optimize animation performance */
+.vp-sidebar-item,
+.vp-nav-bar {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ==========================================================================
+   Accessibility Enhancements
+   ========================================================================== */
+
+/* Focus indicators for keyboard navigation */
+.vp-nav-bar a:focus,
+.vp-sidebar-item a:focus,
+.DocSearch-Button:focus {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --vp-c-brand-1: #0066cc;
+    --vp-c-brand-2: #0052a3;
+    --vp-c-brand-3: #003d7a;
+  }
+}
+
+/* ==========================================================================
+   Component Specific Optimizations
+   ========================================================================== */
+
+/* DocSearch - Algolia integration with better performance */
+.DocSearch {
+  --docsearch-primary-color: var(--vp-c-brand-1) !important;
+  --docsearch-text-color: var(--vp-c-text-1) !important;
+  --docsearch-muted-color: var(--vp-c-text-2) !important;
+}
+
+/* Optimize DocSearch modal for mobile */
+@media (max-width: 768px) {
+  .DocSearch-Modal {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* ==========================================================================
+   Print Styles - Documentation friendly
+   ========================================================================== */
+
+@media print {
+  .vp-nav-bar,
+  .vp-sidebar,
+  .vp-doc-footer,
+  .DocSearch {
+    display: none !important;
+  }
+  
+  .vp-doc {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Ensure good contrast for printed text */
+  :root {
+    --vp-c-text-1: #000000;
+    --vp-c-text-2: #333333;
+    --vp-c-bg: #ffffff;
+  }
+}
+
+/* ==========================================================================
+   Custom Styles - 自定义样式
+   ========================================================================== */
+
+/* 右边目录菜单字体放大 - 使用正确的VitePress选择器 */
+.VPDocAsideOutline .outline-link {
+  font-size: 12.5px !important;
+  line-height: 2.2 !important;
+  font-weight: 500 !important;
+}
+
+/* 目录标题放大 */
+.VPDocAsideOutline .outline-title {
+  font-size: 20px !important;
+}
+
+/* ==========================================================================
+   页面底部导航样式增强 - 与侧边栏区分
+   ========================================================================== */
+
+/* 文档页面底部导航容器 */
+.VPDocFooter {
+  margin-top: 48px !important;
+  padding: 32px 0 !important;
+  border-top: 2px solid var(--vp-c-divider) !important;
+  background: linear-gradient(135deg, var(--vp-c-bg-soft) 0%, var(--vp-c-bg-alt) 100%) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+}
+
+/* 暗色模式下的特殊处理 */
+.dark .VPDocFooter {
+  background: linear-gradient(135deg, var(--vp-c-bg-soft) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+  border-top: 2px solid var(--vp-c-brand-1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 底部导航链接样式 */
+.VPDocFooter .pager-link {
+  padding: 20px 24px !important;
+  background: var(--vp-c-bg) !important;
+  border: 2px solid var(--vp-c-divider) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* 悬停效果 */
+.VPDocFooter .pager-link:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  background: var(--vp-c-brand-soft) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(var(--vp-c-brand-1), 0.15) !important;
+}
+
+/* 暗色模式下的悬停效果 */
+.dark .VPDocFooter .pager-link:hover {
+  background: rgba(var(--vp-c-brand-1), 0.1) !important;
+  box-shadow: 0 8px 24px rgba(var(--vp-c-brand-1), 0.25) !important;
+}
+
+/* 导航链接标题 */
+.VPDocFooter .pager-link .title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--vp-c-text-1) !important;
+  margin-bottom: 4px !important;
+  line-height: 1.4 !important;
+}
+
+/* 导航链接描述 */
+.VPDocFooter .pager-link .desc {
+  font-size: 13px !important;
+  color: var(--vp-c-text-2) !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* 前一页链接特殊样式 */
+.VPDocFooter .pager-link.prev {
+  position: relative !important;
+}
+
+.VPDocFooter .pager-link.prev::before {
+  content: "←" !important;
+  position: absolute !important;
+  left: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: var(--vp-c-brand-1) !important;
+  opacity: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.VPDocFooter .pager-link.prev:hover::before {
+  opacity: 1 !important;
+  left: 16px !important;
+}
+
+.VPDocFooter .pager-link.prev:hover .title {
+  padding-left: 20px !important;
+  transition: padding-left 0.3s ease !important;
+}
+
+/* 下一页链接特殊样式 */
+.VPDocFooter .pager-link.next {
+  position: relative !important;
+}
+
+.VPDocFooter .pager-link.next::after {
+  content: "→" !important;
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: var(--vp-c-brand-1) !important;
+  opacity: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.VPDocFooter .pager-link.next:hover::after {
+  opacity: 1 !important;
+  right: 16px !important;
+}
+
+.VPDocFooter .pager-link.next:hover .title {
+  padding-right: 20px !important;
+  transition: padding-right 0.3s ease !important;
+}
+
+/* 响应式设计 - 移动端优化 */
+@media (max-width: 768px) {
+  .VPDocFooter {
+    margin-top: 32px !important;
+    padding: 24px 16px !important;
+    border-radius: 8px !important;
+  }
+  
+  .VPDocFooter .pager-link {
+    padding: 16px 20px !important;
+    border-radius: 12px !important;
+  }
+  
+  .VPDocFooter .pager-link .title {
+    font-size: 15px !important;
+  }
+  
+  .VPDocFooter .pager-link .desc {
+    font-size: 12px !important;
+  }
+}
+
+/* 增强页面导航的标识性 - 添加图标背景 */
+.VPDocFooter::before {
+  content: "" !important;
+  position: absolute !important;
+  top: -1px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60px !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, var(--vp-c-brand-1), var(--vp-c-brand-2)) !important;
+  border-radius: 2px !important;
+}
+
+/* 为页面导航添加动画效果 */
+.VPDocFooter .pager-link {
+  animation: fadeInUp 0.6s ease-out !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 侧边栏样式保持简洁 - 确保与底部导航有明显区分 */
+.VPSidebar {
+  background: var(--vp-c-bg-alt) !important;
+}
+
+.VPSidebarItem .link {
+  transition: all 0.2s ease !important;
+  border-radius: 6px !important;
+  margin: 2px 0 !important;
+}
+
+.VPSidebarItem .link:hover {
+  background: var(--vp-c-default-soft) !important;
+}
+
+.VPSidebarItem .link.active {
+  background: var(--vp-c-brand-soft) !important;
+  border-left: 3px solid var(--vp-c-brand-1) !important;
+  font-weight: 600 !important;
+}
+

@@ -28,5 +28,48 @@ features:
   - icon:  <svg t="1749121890956" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="21046" width="32" height="32"><path d="M926 215.173333l-384-170.666666a21.333333 21.333333 0 0 0-17.333333 0l-384 170.666666A21.333333 21.333333 0 0 0 128 234.666667v217.813333c0 219.866667 129.373333 419.02 329.6 507.333333 32.793333 14.466667 57.566667 21.5 75.733333 21.5s42.94-7.033333 75.733334-21.5c200.226667-88.333333 329.6-287.486667 329.6-507.333333V234.666667a21.333333 21.333333 0 0 0-12.666667-19.493334z m-206.913333 205.246667l-213.333334 213.333333a21.333333 21.333333 0 0 1-30.173333 0l-128-128a21.333333 21.333333 0 0 1 30.173333-30.173333L490.666667 588.5l198.246666-198.253333a21.333333 21.333333 0 1 1 30.173334 30.173333z" fill="#1afa29" p-id="21047"></path></svg>
     title: 实测
     details: 特征3
+
 ---
+
+<script setup>
+import { VPTeamMembers,VPTeamPageTitle,VPTeamPage} from 'vitepress/theme'
+
+const members = [
+  {
+    avatar: 'https://avatars.githubusercontent.com/u/191690156?s=400&u=e15d53c4f11a5a5004e9f235c9e7e417e932b010&v=4',
+    name: 'HZ-hezh',
+    title: '作者',
+    links: [
+      { icon: 'github', link: 'https://github.com/HZ-hezh' }
+    ]
+  },
+  {
+    avatar: 'https://www.github.com/patak-dev.png',
+    name: '里甘霖',
+    title: '资源分享',
+    links: [
+      { icon: 'github', link: 'https://github.com/patak-dev' }
+    ]
+  },
+  {
+    
+  },
+  {
+   
+  }
+]
+</script>
+
+
+
+<VPTeamPage>
+
+  <VPTeamPageTitle>
+    <template #title>
+      贡献成员
+    </template>
+  </VPTeamPageTitle>
+  <VPTeamMembers size="small" :members="members" />
+
+</VPTeamPage>
 

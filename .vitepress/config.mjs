@@ -59,23 +59,51 @@ export default defineConfigWithTheme({
     },
     // 自定义音乐播放器配置
     customMusicPlayer: {
-      list: [
+      list: [ 
         {
-          name: "把回忆拼好给你",
-          src: "/music/cici_-把回忆拼好给你.flac"
+          name: "春娇与志明",
+          src: "/music/街道办GDC_欧阳耀莹-春娇与志明.flac"
+        },
+        {
+          name: "溯",
+          src: "/music/CORSAK胡梦周_马吟吟-溯(Reverse)-reverse.flac"
+        },
+        {
+          name: "天若有情",
+          src: "/music/桃-天若有情 (赖仔版).mp3"
+        },
+        {
+          name: "梦回还",
+          src: "/music/呦猫UNEKO-梦回还.flac"
         },
         {
           name: "把回忆拼好给你",
           src: "/music/cici_-把回忆拼好给你.flac"
+        } ,
+        {
+          name: "红尘客栈",
+          src: "/music/周杰伦-红尘客栈.flac"
         },
         {
-          name: "把回忆拼好给你",
-          src: "/music/cici_-把回忆拼好给你.flac"
+          name: "兰亭序",
+          src: "/music/周杰伦-兰亭序.flac"
         },
         {
-          name: "把回忆拼好给你",
-          src: "/music/cici_-把回忆拼好给你.flac"
-        }
+          name: "青花瓷",
+          src: "/music/周杰伦-青花瓷.flac"
+        },
+        {
+          name: "个人简介",
+          src: "/music/风吹流年-个人简介(说唱).flac"
+        },
+        {
+          name: "我的天空Remix",
+          src: "/music/张德帅Sway-你的(我的天空Remix).flac"
+        } ,
+        {
+          name: "数码宝贝",
+          src: "/music/和田光司-Butter-Fly-《数码宝贝》TV动画片头曲.flac"
+        } 
       ],
       loop: true,
       autoplay: false,
