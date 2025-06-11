@@ -1,7 +1,11 @@
 <template>
   <div v-if="showPlayer" class="custom-music-player">
-    <!-- 全屏遮罩层 -->
-    <div v-if="isExpanded" class="overlay" @click="closePlayer"></div>
+    <!-- 全屏遮罩层，点击收缩播放器 -->
+    <div 
+      v-if="isExpanded" 
+      class="overlay"
+      @click="closePlayer"
+    ></div>
     
     <div class="player-container" :class="{ 'expanded': isExpanded, 'playing': isPlaying }">
       <!-- 主控制球 -->
@@ -18,9 +22,11 @@
         
         <!-- 播放按钮 -->
         <div class="play-button" @click.stop="togglePlay">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path v-if="!isPlaying" d="M8 5v14l11-7z"/>
-            <path v-else d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          <svg v-if="!isPlaying" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <svg v-else viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           </svg>
         </div>
         
@@ -31,46 +37,42 @@
         <div class="floating-controls" v-if="!isExpanded">
           <!-- 迷你进度条 -->
           <div class="mini-progress">
-            <div class="mini-progress-bar" @click.stop="seekTo">
-              <div class="mini-progress-fill" :style="{ width: displayProgress + '%' }"></div>
-              <div 
-                class="mini-progress-thumb" 
-                :style="{ left: displayProgress + '%' }"
-                @mousedown="startDrag"
-              ></div>
+            <div class="mini-progress-bar" @click.stop="seekToMini">
+              <div class="mini-progress-fill" :style="{ width: progress + '%' }"></div>
             </div>
           </div>
           
           <!-- 控制按钮组 -->
           <div class="control-buttons">
-            <button @click.stop="changeSong(-1)" class="floating-btn" title="上一首">
+            <button @click.stop="previousSong" class="floating-btn" title="上一首">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
               </svg>
             </button>
             
-            <button @click.stop="togglePlay" class="floating-btn" title="播放/暂停">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <path v-if="!isPlaying" d="M8 5v14l11-7z"/>
-                <path v-else d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            <button @click.stop="togglePlay" class="floating-btn play-pause-btn" title="播放/暂停">
+              <svg v-if="!isPlaying" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
               </svg>
             </button>
             
-            <button @click.stop="changeSong(1)" class="floating-btn" title="下一首">
+            <button @click.stop="nextSong" class="floating-btn" title="下一首">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
               </svg>
             </button>
             
             <button @click.stop="toggleExpansion" class="floating-btn" title="显示全貌">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <svg viewBox="0 0 24 24" width="50" height="50" fill="currentColor">
                 <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
               </svg>
             </button>
           </div>
         </div>
         
-        <!-- 波浪动画 -->
         <div class="wave-animation">
           <span></span>
           <span></span>
@@ -82,15 +84,10 @@
       <div v-if="isExpanded" class="player-panel" @click.stop>
         <div class="current-song">
           <div class="song-info">
-            <div class="song-name">{{ currentSong?.name || '暂无歌曲' }}</div>
+            <div class="song-name">{{ currentSong && currentSong.name || '暂无歌曲' }}</div>
             <div class="song-progress">
               <div class="progress-bar" @click="seekTo">
-                <div class="progress-fill" :style="{ width: displayProgress + '%' }"></div>
-                <div 
-                  class="progress-thumb" 
-                  :style="{ left: displayProgress + '%' }"
-                  @mousedown="startDrag"
-                ></div>
+                <div class="progress-fill" :style="{ width: progress + '%' }"></div>
               </div>
               <div class="time-info">
                 <span>{{ formatTime(currentTime) }}</span>
@@ -101,27 +98,29 @@
           
           <!-- 控制按钮组 -->
           <div class="controls">
-            <button @click="changeSong(-1)" title="上一首" class="control-btn">
+            <button @click="previousSong" title="上一首" class="control-btn">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
               </svg>
             </button>
             
             <button @click="togglePlay" title="播放/暂停" class="control-btn play-pause">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path v-if="!isPlaying" d="M8 5v14l11-7z"/>
-                <path v-else d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              <svg v-if="!isPlaying" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
               </svg>
             </button>
             
-            <button @click="changeSong(1)" title="下一首" class="control-btn">
+            <button @click="nextSong" title="下一首" class="control-btn">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
               </svg>
             </button>
             
             <!-- 下载按钮 -->
-            <button @click="downloadSong(currentSong)" title="下载当前歌曲" class="control-btn download-btn">
+            <button @click="downloadCurrentSong" title="下载当前歌曲" class="control-btn download-btn">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
               </svg>
@@ -130,9 +129,11 @@
             <!-- 音量控制 -->
             <div class="volume-control">
               <button @click="toggleMute" title="静音" class="control-btn">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path v-if="!isMuted && volume > 0" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                  <path v-else d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                <svg v-if="!isMuted && volume > 0" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
                 </svg>
               </button>
               <input 
@@ -189,7 +190,7 @@
       ref="audioRef" 
       @timeupdate="updateProgress"
       @loadedmetadata="updateDuration"
-      @ended="changeSong(1)"
+      @ended="nextSong"
       @error="handleError"
       preload="metadata"
     />
@@ -212,8 +213,6 @@ const currentTime = ref(0)
 const duration = ref(0)
 const volume = ref(100)
 const isMuted = ref(false)
-const isDragging = ref(false)
-const dragProgress = ref(0)
 
 // 计算属性
 const playlist = computed(() => {
@@ -225,10 +224,11 @@ const playlist = computed(() => {
 
 const currentSong = computed(() => playlist.value[currentIndex.value])
 const showPlayer = computed(() => config.enable && playlist.value.length > 0)
-const displayProgress = computed(() => isDragging.value ? dragProgress.value : progress.value)
 const progress = computed(() => duration.value ? (currentTime.value / duration.value) * 100 : 0)
-const circumference = computed(() => 2 * Math.PI * 20)
-const progressOffset = computed(() => circumference.value - (displayProgress.value / 100) * circumference.value)
+
+// 圆形进度条计算
+const circumference = computed(() => 2 * Math.PI * 20) // 半径20的圆周长
+const progressOffset = computed(() => circumference.value - (progress.value / 100) * circumference.value)
 
 // 方法
 const togglePlay = () => {
@@ -257,42 +257,111 @@ const playSong = (index) => {
   }
   
   currentIndex.value = index
-  loadAndPlaySong()
-}
-
-// 统一的歌曲切换逻辑
-const changeSong = (direction) => {
-  const newIndex = direction === 1 
-    ? (currentIndex.value + 1) % playlist.value.length
-    : currentIndex.value === 0 ? playlist.value.length - 1 : currentIndex.value - 1
-  
-  currentIndex.value = newIndex
-  loadAndPlaySong()
-}
-
-// 统一的音频加载和播放逻辑
-const loadAndPlaySong = () => {
-  if (!audioRef.value || !currentSong.value) return
-  
-  audioRef.value.pause()
-  isPlaying.value = false
-  audioRef.value.src = currentSong.value.src
-  
-  const handleCanPlay = () => {
-    audioRef.value.removeEventListener('canplay', handleCanPlay)
-    const playPromise = audioRef.value.play()
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        isPlaying.value = true
-      }).catch(error => {
-        console.error('播放失败:', error)
-        isPlaying.value = false
-      })
+  if (audioRef.value && currentSong.value) {
+    // 先暂停当前播放
+    audioRef.value.pause()
+    isPlaying.value = false
+    
+    // 设置新的音源
+    audioRef.value.src = currentSong.value.src
+    
+    // 监听音频加载完成事件
+    const handleCanPlay = () => {
+      audioRef.value.removeEventListener('canplay', handleCanPlay)
+      // 音频加载完成后自动播放
+      const playPromise = audioRef.value.play()
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          isPlaying.value = true
+          console.log('播放列表歌曲自动播放成功')
+        }).catch(error => {
+          console.error('播放列表歌曲自动播放失败:', error)
+          isPlaying.value = false
+        })
+      }
     }
+    
+    audioRef.value.addEventListener('canplay', handleCanPlay)
+    audioRef.value.load()
   }
+}
+
+const nextSong = () => {
+  console.log('当前索引:', currentIndex.value, '播放列表长度:', playlist.value.length)
   
-  audioRef.value.addEventListener('canplay', handleCanPlay)
-  audioRef.value.load()
+  const nextIndex = (currentIndex.value + 1) % playlist.value.length
+  console.log('计算的下一首索引:', nextIndex)
+  
+  currentIndex.value = nextIndex
+  
+  if (audioRef.value && currentSong.value) {
+    console.log('切换到下一首:', currentSong.value.name)
+    
+    // 先暂停当前播放
+    audioRef.value.pause()
+    isPlaying.value = false
+    
+    // 设置新的音源
+    audioRef.value.src = currentSong.value.src
+    
+    // 监听音频加载完成事件
+    const handleCanPlay = () => {
+      audioRef.value.removeEventListener('canplay', handleCanPlay)
+      // 音频加载完成后自动播放
+      const playPromise = audioRef.value.play()
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          isPlaying.value = true
+          console.log('下一首自动播放成功:', currentSong.value.name)
+        }).catch(error => {
+          console.error('下一首自动播放失败:', error)
+          isPlaying.value = false
+        })
+      }
+    }
+    
+    audioRef.value.addEventListener('canplay', handleCanPlay)
+    audioRef.value.load()
+  }
+}
+
+const previousSong = () => {
+  console.log('当前索引:', currentIndex.value, '播放列表长度:', playlist.value.length)
+  
+  const prevIndex = currentIndex.value === 0 ? playlist.value.length - 1 : currentIndex.value - 1
+  console.log('计算的上一首索引:', prevIndex)
+  
+  currentIndex.value = prevIndex
+  
+  if (audioRef.value && currentSong.value) {
+    console.log('切换到上一首:', currentSong.value.name)
+    
+    // 先暂停当前播放
+    audioRef.value.pause()
+    isPlaying.value = false
+    
+    // 设置新的音源
+    audioRef.value.src = currentSong.value.src
+    
+    // 监听音频加载完成事件
+    const handleCanPlay = () => {
+      audioRef.value.removeEventListener('canplay', handleCanPlay)
+      // 音频加载完成后自动播放
+      const playPromise = audioRef.value.play()
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          isPlaying.value = true
+          console.log('上一首自动播放成功:', currentSong.value.name)
+        }).catch(error => {
+          console.error('上一首自动播放失败:', error)
+          isPlaying.value = false
+        })
+      }
+    }
+    
+    audioRef.value.addEventListener('canplay', handleCanPlay)
+    audioRef.value.load()
+  }
 }
 
 const updateProgress = () => {
@@ -336,70 +405,44 @@ const formatTime = (seconds) => {
 
 const handleError = (e) => {
   console.error('音频播放错误:', e)
-  changeSong(1)
+  nextSong()
 }
 
-// 进度条点击跳转
+// 进度条拖动功能
+const isDragging = ref(false)
+
 const seekTo = (event) => {
-  if (!audioRef.value || !duration.value || isDragging.value) return
+  if (!audioRef.value || !duration.value) return
   
   const progressBar = event.currentTarget
   const rect = progressBar.getBoundingClientRect()
   const clickX = event.clientX - rect.left
-  const percentage = Math.max(0, Math.min(100, (clickX / rect.width) * 100))
-  const newTime = (percentage / 100) * duration.value
+  const percentage = clickX / rect.width
+  const newTime = percentage * duration.value
   
   audioRef.value.currentTime = newTime
   currentTime.value = newTime
 }
 
-// 拖动开始
-const startDrag = (event) => {
+// 迷你进度条拖动功能
+const seekToMini = (event) => {
   if (!audioRef.value || !duration.value) return
   
-  isDragging.value = true
-  event.preventDefault()
-  event.stopPropagation()
+  const progressBar = event.currentTarget
+  const rect = progressBar.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const percentage = clickX / rect.width
+  const newTime = percentage * duration.value
   
-  const progressBar = event.currentTarget.closest('.progress-bar, .mini-progress-bar')
-  
-  const updateProgress = (e) => {
-    const rect = progressBar.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const percentage = Math.max(0, Math.min(100, (clickX / rect.width) * 100))
-    
-    // 实时更新显示进度
-    dragProgress.value = percentage
-    
-    // 实时更新音频位置
-    const newTime = (percentage / 100) * duration.value
-    audioRef.value.currentTime = newTime
-    currentTime.value = newTime
-  }
-  
-  const handleMouseMove = (e) => {
-    if (!isDragging.value) return
-    updateProgress(e)
-  }
-  
-  const handleMouseUp = () => {
-    isDragging.value = false
-    dragProgress.value = 0
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }
-  
-  // 立即更新一次位置
-  updateProgress(event)
-  
-  document.addEventListener('mousemove', handleMouseMove)
-  document.addEventListener('mouseup', handleMouseUp)
+  audioRef.value.currentTime = newTime
+  currentTime.value = newTime
 }
 
-// 下载功能
+// 优化的下载功能
 const downloadSong = (song) => {
-  if (!song) return
+  console.log('立即开始下载:', song.name, song.src)
   
+  // 立即创建下载链接，减少延迟
   const link = document.createElement('a')
   link.href = song.src
   link.download = `${song.name}.${getFileExtension(song.src)}`
@@ -407,13 +450,28 @@ const downloadSong = (song) => {
   link.style.display = 'none'
   
   document.body.appendChild(link)
+  
+  // 立即触发下载
   setTimeout(() => {
     link.click()
     document.body.removeChild(link)
-  }, 100)
+    console.log('下载已触发')
+  }, 100) // 减少延迟到100ms
+}
+
+const downloadCurrentSong = () => {
+  if (currentSong.value) {
+    console.log('下载当前歌曲:', currentSong.value)
+    downloadSong(currentSong.value)
+  } else {
+    console.log('没有当前歌曲')
+    alert('没有正在播放的歌曲')
+  }
 }
 
 const downloadAll = async () => {
+  console.log('开始批量下载，共', playlist.value.length, '首歌曲')
+  
   if (playlist.value.length === 0) {
     alert('播放列表为空')
     return
@@ -424,9 +482,15 @@ const downloadAll = async () => {
   }
   
   for (let i = 0; i < playlist.value.length; i++) {
-    downloadSong(playlist.value[i])
+    const song = playlist.value[i]
+    console.log(`下载第 ${i + 1} 首:`, song.name)
+    
+    downloadSong(song)
+    // 添加延迟避免服务器压力
     await new Promise(resolve => setTimeout(resolve, 1500))
   }
+  
+  console.log('批量下载完成')
 }
 
 const getFileExtension = (url) => {
@@ -496,16 +560,6 @@ watch(currentSong, (newSong) => {
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.music-ball:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(100, 108, 255, 0.4);
-}
-
-.music-ball:hover .floating-controls {
-  opacity: 1;
-  visibility: visible;
-}
-
 .expand-area {
   position: absolute;
   top: 0;
@@ -514,6 +568,16 @@ watch(currentSong, (newSong) => {
   bottom: 0;
   border-radius: 50%;
   z-index: 1;
+}
+
+.music-ball:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(100, 108, 255, 0.4);
+}
+
+.music-ball:hover .floating-controls {
+  opacity: 1;
+  visibility: visible;
 }
 
 .circular-progress {
@@ -603,104 +667,6 @@ watch(currentSong, (newSong) => {
   }
 }
 
-.floating-controls {
-  position: absolute;
-  left: 60px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  pointer-events: auto;
-  background: rgba(27, 27, 31, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 25px;
-  padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.mini-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 120px;
-}
-
-.mini-progress-bar {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  overflow: visible;
-  position: relative;
-  cursor: pointer;
-}
-
-.mini-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #646cff 0%, #4f46e5 100%);
-  transition: width 0.1s ease;
-  pointer-events: none;
-  border-radius: 3px;
-}
-
-.mini-progress-thumb {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
-  background: white;
-  border: 2px solid #646cff;
-  border-radius: 50%;
-  cursor: grab;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
-}
-
-.mini-progress-thumb:hover {
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
-  border-width: 3px;
-}
-
-.mini-progress-thumb:active,
-.mini-progress-thumb.dragging {
-  cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 6px 16px rgba(100, 108, 255, 0.5);
-  border-width: 3px;
-}
-
-.control-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.floating-btn {
-  width: 20px;
-  height: 28px;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
-  flex-shrink: 0;
-}
-
-.floating-btn:hover {
-  color: #646cff;
-}
-
 .player-panel {
   position: absolute;
   bottom: 60px;
@@ -755,7 +721,7 @@ watch(currentSong, (newSong) => {
   height: 6px;
   background: rgba(60, 60, 60, 0.12);
   border-radius: 3px;
-  overflow: visible;
+  overflow: hidden;
   margin-bottom: 4px;
   position: relative;
   cursor: pointer;
@@ -763,40 +729,10 @@ watch(currentSong, (newSong) => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #646cff 0%, #4f46e5 100%);
+  background: #646cff;
   transition: width 0.1s ease;
   pointer-events: none;
   border-radius: 3px;
-}
-
-.progress-thumb {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  background: white;
-  border: 3px solid #646cff;
-  border-radius: 50%;
-  cursor: grab;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 3px 12px rgba(100, 108, 255, 0.3);
-}
-
-.progress-thumb:hover {
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 5px 16px rgba(100, 108, 255, 0.4);
-  border-width: 4px;
-}
-
-.progress-thumb:active,
-.progress-thumb.dragging {
-  cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 7px 20px rgba(100, 108, 255, 0.5);
-  border-width: 4px;
 }
 
 .time-info {
@@ -996,12 +932,6 @@ watch(currentSong, (newSong) => {
     background: rgba(255, 255, 255, 0.15);
   }
   
-  .mini-progress-thumb {
-    background: linear-gradient(135deg, #646cff 0%, #4f46e5 100%);
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 8px rgba(100, 108, 255, 0.4), 0 0 0 0 rgba(100, 108, 255, 0.3);
-  }
-  
   .player-panel {
     background: rgba(30, 30, 30, 0.95);
     border: 1px solid rgba(229, 229, 229, 0.12);
@@ -1021,16 +951,6 @@ watch(currentSong, (newSong) => {
   
   .progress-bar {
     background: rgba(229, 229, 229, 0.12);
-  }
-  
-  .progress-thumb {
-    background: linear-gradient(135deg, #646cff 0%, #4f46e5 100%);
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 3px 12px rgba(100, 108, 255, 0.4), 0 0 0 0 rgba(100, 108, 255, 0.3);
-  }
-  
-  .progress-thumb:hover {
-    box-shadow: 0 5px 16px rgba(100, 108, 255, 0.5), 0 0 0 4px rgba(100, 108, 255, 0.3);
   }
   
   .volume-slider {
@@ -1067,5 +987,74 @@ watch(currentSong, (newSong) => {
   .control-btn {
     padding: 5px;
   }
+}
+
+.floating-controls {
+  position: absolute;
+  left: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  background: rgba(27, 27, 31, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mini-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.mini-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: #646cff;
+  transition: width 0.1s ease;
+  pointer-events: none;
+  border-radius: 3px;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.floating-btn {
+  position: relative;
+  width: 20px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.floating-btn:hover {
+  color: #646cff;
 }
 </style> 

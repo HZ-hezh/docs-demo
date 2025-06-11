@@ -32,12 +32,7 @@
           <!-- 迷你进度条 -->
           <div class="mini-progress">
             <div class="mini-progress-bar" @click.stop="seekTo">
-              <div class="mini-progress-fill" :style="{ width: displayProgress + '%' }"></div>
-              <div 
-                class="mini-progress-thumb" 
-                :style="{ left: displayProgress + '%' }"
-                @mousedown="startDrag"
-              ></div>
+              <div class="mini-progress-fill" :style="{ width: progress + '%' }"></div>
             </div>
           </div>
           
@@ -85,12 +80,7 @@
             <div class="song-name">{{ currentSong?.name || '暂无歌曲' }}</div>
             <div class="song-progress">
               <div class="progress-bar" @click="seekTo">
-                <div class="progress-fill" :style="{ width: displayProgress + '%' }"></div>
-                <div 
-                  class="progress-thumb" 
-                  :style="{ left: displayProgress + '%' }"
-                  @mousedown="startDrag"
-                ></div>
+                <div class="progress-fill" :style="{ width: progress + '%' }"></div>
               </div>
               <div class="time-info">
                 <span>{{ formatTime(currentTime) }}</span>
@@ -213,7 +203,6 @@ const duration = ref(0)
 const volume = ref(100)
 const isMuted = ref(false)
 const isDragging = ref(false)
-const dragProgress = ref(0)
 
 // 计算属性
 const playlist = computed(() => {
@@ -225,10 +214,9 @@ const playlist = computed(() => {
 
 const currentSong = computed(() => playlist.value[currentIndex.value])
 const showPlayer = computed(() => config.enable && playlist.value.length > 0)
-const displayProgress = computed(() => isDragging.value ? dragProgress.value : progress.value)
 const progress = computed(() => duration.value ? (currentTime.value / duration.value) * 100 : 0)
 const circumference = computed(() => 2 * Math.PI * 20)
-const progressOffset = computed(() => circumference.value - (displayProgress.value / 100) * circumference.value)
+const progressOffset = computed(() => circumference.value - (progress.value / 100) * circumference.value)
 
 // 方法
 const togglePlay = () => {
@@ -341,7 +329,7 @@ const handleError = (e) => {
 
 // 进度条点击跳转
 const seekTo = (event) => {
-  if (!audioRef.value || !duration.value || isDragging.value) return
+  if (!audioRef.value || !duration.value) return
   
   const progressBar = event.currentTarget
   const rect = progressBar.getBoundingClientRect()
@@ -355,42 +343,27 @@ const seekTo = (event) => {
 
 // 拖动开始
 const startDrag = (event) => {
-  if (!audioRef.value || !duration.value) return
-  
   isDragging.value = true
   event.preventDefault()
-  event.stopPropagation()
   
-  const progressBar = event.currentTarget.closest('.progress-bar, .mini-progress-bar')
-  
-  const updateProgress = (e) => {
+  const handleMouseMove = (e) => {
+    if (!isDragging.value || !audioRef.value || !duration.value) return
+    
+    const progressBar = event.currentTarget.closest('.progress-bar, .mini-progress-bar')
     const rect = progressBar.getBoundingClientRect()
     const clickX = e.clientX - rect.left
     const percentage = Math.max(0, Math.min(100, (clickX / rect.width) * 100))
-    
-    // 实时更新显示进度
-    dragProgress.value = percentage
-    
-    // 实时更新音频位置
     const newTime = (percentage / 100) * duration.value
+    
     audioRef.value.currentTime = newTime
     currentTime.value = newTime
   }
   
-  const handleMouseMove = (e) => {
-    if (!isDragging.value) return
-    updateProgress(e)
-  }
-  
   const handleMouseUp = () => {
     isDragging.value = false
-    dragProgress.value = 0
     document.removeEventListener('mousemove', handleMouseMove)
     document.removeEventListener('mouseup', handleMouseUp)
   }
-  
-  // 立即更新一次位置
-  updateProgress(event)
   
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
@@ -634,47 +607,17 @@ watch(currentSong, (newSong) => {
   height: 6px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
-  overflow: visible;
+  overflow: hidden;
   position: relative;
   cursor: pointer;
 }
 
 .mini-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #646cff 0%, #4f46e5 100%);
+  background: #646cff;
   transition: width 0.1s ease;
   pointer-events: none;
   border-radius: 3px;
-}
-
-.mini-progress-thumb {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
-  background: white;
-  border: 2px solid #646cff;
-  border-radius: 50%;
-  cursor: grab;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
-}
-
-.mini-progress-thumb:hover {
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
-  border-width: 3px;
-}
-
-.mini-progress-thumb:active,
-.mini-progress-thumb.dragging {
-  cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 6px 16px rgba(100, 108, 255, 0.5);
-  border-width: 3px;
 }
 
 .control-buttons {
@@ -755,7 +698,7 @@ watch(currentSong, (newSong) => {
   height: 6px;
   background: rgba(60, 60, 60, 0.12);
   border-radius: 3px;
-  overflow: visible;
+  overflow: hidden;
   margin-bottom: 4px;
   position: relative;
   cursor: pointer;
@@ -763,40 +706,10 @@ watch(currentSong, (newSong) => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #646cff 0%, #4f46e5 100%);
+  background: #646cff;
   transition: width 0.1s ease;
   pointer-events: none;
   border-radius: 3px;
-}
-
-.progress-thumb {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  background: white;
-  border: 3px solid #646cff;
-  border-radius: 50%;
-  cursor: grab;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 3px 12px rgba(100, 108, 255, 0.3);
-}
-
-.progress-thumb:hover {
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 5px 16px rgba(100, 108, 255, 0.4);
-  border-width: 4px;
-}
-
-.progress-thumb:active,
-.progress-thumb.dragging {
-  cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 7px 20px rgba(100, 108, 255, 0.5);
-  border-width: 4px;
 }
 
 .time-info {
@@ -996,12 +909,6 @@ watch(currentSong, (newSong) => {
     background: rgba(255, 255, 255, 0.15);
   }
   
-  .mini-progress-thumb {
-    background: linear-gradient(135deg, #646cff 0%, #4f46e5 100%);
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 8px rgba(100, 108, 255, 0.4), 0 0 0 0 rgba(100, 108, 255, 0.3);
-  }
-  
   .player-panel {
     background: rgba(30, 30, 30, 0.95);
     border: 1px solid rgba(229, 229, 229, 0.12);
@@ -1021,16 +928,6 @@ watch(currentSong, (newSong) => {
   
   .progress-bar {
     background: rgba(229, 229, 229, 0.12);
-  }
-  
-  .progress-thumb {
-    background: linear-gradient(135deg, #646cff 0%, #4f46e5 100%);
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 3px 12px rgba(100, 108, 255, 0.4), 0 0 0 0 rgba(100, 108, 255, 0.3);
-  }
-  
-  .progress-thumb:hover {
-    box-shadow: 0 5px 16px rgba(100, 108, 255, 0.5), 0 0 0 4px rgba(100, 108, 255, 0.3);
   }
   
   .volume-slider {

@@ -33,9 +33,10 @@
           <div class="mini-progress">
             <div class="mini-progress-bar" @click.stop="seekTo">
               <div class="mini-progress-fill" :style="{ width: displayProgress + '%' }"></div>
+              <div class="mini-progress-fill" :style="{ width: progress + '%' }"></div>
               <div 
                 class="mini-progress-thumb" 
-                :style="{ left: displayProgress + '%' }"
+                :style="{ left: progress + '%' }"
                 @mousedown="startDrag"
               ></div>
             </div>
@@ -85,10 +86,10 @@
             <div class="song-name">{{ currentSong?.name || '暂无歌曲' }}</div>
             <div class="song-progress">
               <div class="progress-bar" @click="seekTo">
-                <div class="progress-fill" :style="{ width: displayProgress + '%' }"></div>
+                <div class="progress-fill" :style="{ width: progress + '%' }"></div>
                 <div 
                   class="progress-thumb" 
-                  :style="{ left: displayProgress + '%' }"
+                  :style="{ left: progress + '%' }"
                   @mousedown="startDrag"
                 ></div>
               </div>
@@ -641,7 +642,7 @@ watch(currentSong, (newSong) => {
 
 .mini-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #646cff 0%, #4f46e5 100%);
+  background: #646cff;
   transition: width 0.1s ease;
   pointer-events: none;
   border-radius: 3px;
@@ -653,28 +654,25 @@ watch(currentSong, (newSong) => {
   transform: translate(-50%, -50%);
   width: 16px;
   height: 16px;
-  background: white;
-  border: 2px solid #646cff;
+  background: linear-gradient(135deg, #646cff 0%, #4f46e5 100%);
+  border: 2px solid white;
   border-radius: 50%;
   cursor: grab;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.4), 0 0 0 0 rgba(100, 108, 255, 0.3);
 }
 
 .mini-progress-thumb:hover {
   transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
-  border-width: 3px;
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.5), 0 0 0 4px rgba(100, 108, 255, 0.2);
 }
 
-.mini-progress-thumb:active,
-.mini-progress-thumb.dragging {
+.mini-progress-thumb:active {
   cursor: grabbing;
   transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 6px 16px rgba(100, 108, 255, 0.5);
-  border-width: 3px;
+  box-shadow: 0 6px 16px rgba(100, 108, 255, 0.6), 0 0 0 6px rgba(100, 108, 255, 0.3);
 }
 
 .control-buttons {
@@ -763,7 +761,7 @@ watch(currentSong, (newSong) => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #646cff 0%, #4f46e5 100%);
+  background: #646cff;
   transition: width 0.1s ease;
   pointer-events: none;
   border-radius: 3px;
@@ -775,28 +773,25 @@ watch(currentSong, (newSong) => {
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background: white;
-  border: 3px solid #646cff;
+  background: linear-gradient(135deg, #646cff 0%, #4f46e5 100%);
+  border: 3px solid white;
   border-radius: 50%;
   cursor: grab;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
   z-index: 10;
-  box-shadow: 0 3px 12px rgba(100, 108, 255, 0.3);
+  box-shadow: 0 3px 12px rgba(100, 108, 255, 0.4), 0 0 0 0 rgba(100, 108, 255, 0.3);
 }
 
 .progress-thumb:hover {
   transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 5px 16px rgba(100, 108, 255, 0.4);
-  border-width: 4px;
+  box-shadow: 0 5px 16px rgba(100, 108, 255, 0.5), 0 0 0 4px rgba(100, 108, 255, 0.2);
 }
 
-.progress-thumb:active,
-.progress-thumb.dragging {
+.progress-thumb:active {
   cursor: grabbing;
   transform: translate(-50%, -50%) scale(1.25);
-  box-shadow: 0 7px 20px rgba(100, 108, 255, 0.5);
-  border-width: 4px;
+  box-shadow: 0 7px 20px rgba(100, 108, 255, 0.6), 0 0 0 6px rgba(100, 108, 255, 0.3);
 }
 
 .time-info {
