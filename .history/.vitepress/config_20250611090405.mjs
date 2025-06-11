@@ -90,7 +90,7 @@ export default defineConfigWithTheme({
         },
         {
           name: "把回忆拼好给你",
-          src: "/music/cici_-把回忆拼好给你.flac"
+          src: "/api/music/cici_-把回忆拼好给你.flac"
         },
         {
           name: "个人简历",
