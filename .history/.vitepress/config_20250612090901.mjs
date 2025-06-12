@@ -62,7 +62,7 @@ export default defineConfigWithTheme({
       list: [ 
         {
           name: "纯音乐",
-          src: "/music/下载.mp4"
+          src: "/music/下载.m4a"
         } ,{
           name: "春娇与志明",
           src: "/music/街道办GDC_欧阳耀莹-春娇与志明.flac"
