@@ -1,3 +1,3 @@
-# 笔记2
+# 敬请期待
 
 <video src="/video/2024-10-09 21-56-05.mp4" controls width="50%"></video>
