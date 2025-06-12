@@ -61,7 +61,7 @@ export default defineConfigWithTheme({
     customMusicPlayer: {
       list: [ 
         {
-          name: "纯音乐(带上耳机感受这首歌的魅力)",
+          name: "纯音乐",
           src: "/music/下载.m4a"
         } ,{
           name: "春娇与志明",
