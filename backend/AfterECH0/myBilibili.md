@@ -1,6 +1,6 @@
 # AfterECH0的bilibili
 
-![书籍封面](video/100.png)
+![无意义的图片](video/100.png)
 
 *不要等到口干再喝水*
 

@@ -1,7 +1,6 @@
-# 📚 强烈推荐：《思考，快与慢》(Thinking, Fast and Slow)
+# 📚推荐：《Thinking, Fast and Slow》
 
 ![思考，快与慢 书封](https://img3.doubanio.com/lpic/s27210350.jpg)
-*(图片可选，如果想显示图片，你需要确保图片链接有效，或者将图片下载到本地并使用相对路径)*
 
 ---
 
