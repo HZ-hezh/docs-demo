@@ -33,14 +33,7 @@ export default defineConfigWithTheme({
     // sidebar:false,   //关闭侧边栏
     // aside:"left",    //设置右侧侧边栏在左侧最示
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/HZ-hezh' },
-      { 
-        icon: {
-          svg: '<svg t="1749708413499" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2632" width="200" height="200"><path d="M824.8 613.2c-16-51.4-34.4-94.6-62.7-165.3C766.5 262.2 689.3 112 511.5 112 331.7 112 256.2 265.2 261 447.9c-28.4 70.8-46.7 113.7-62.7 165.3-34 109.5-23 154.8-14.6 155.8 18 2.2 70.1-82.4 70.1-82.4 0 49 25.2 112.9 79.8 159-26.4 8.1-85.7 29.9-71.6 53.8 11.4 19.3 196.2 12.3 249.5 6.3 53.3 6 238.1 13 249.5-6.3 14.1-23.8-45.3-45.7-71.6-53.8 54.6-46.2 79.8-110.1 79.8-159 0 0 52.1 84.6 70.1 82.4 8.5-1.1 19.5-46.4-14.5-155.8z" p-id="2633"></path></svg>'
-        },
-        
-        link: 'https://qm.qq.com/q/kRufauzTDa'
-       }
+      { icon: 'github', link: 'https://github.com/HZ-hezh' }
     ],
     footer: {
       copyright: 'Copyright © 2019-present Evan You'
@@ -69,7 +62,7 @@ export default defineConfigWithTheme({
       list: [ 
         {
           name: "纯音乐",
-          src: "/music/下载.mp4"
+          src: "/music/下载.m4"
         } ,{
           name: "春娇与志明",
           src: "/music/街道办GDC_欧阳耀莹-春娇与志明.flac"
@@ -121,6 +114,6 @@ export default defineConfigWithTheme({
       visible: true
     },
     // 关闭鼠标点击彩色效果
-    // confetti: false
+    confetti: false
   }
 })

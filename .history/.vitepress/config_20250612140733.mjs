@@ -121,6 +121,6 @@ export default defineConfigWithTheme({
       visible: true
     },
     // 关闭鼠标点击彩色效果
-    // confetti: false
+    confetti: false
   }
 })
